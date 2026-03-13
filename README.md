@@ -1,6 +1,6 @@
-# minifier-tool
+# Minifier Tool
 
-Minify JS/CSS/HTML for production
+Minify JavaScript, CSS, and HTML code to reduce file size for production.
 
 ## 🚀 Live Demo
 
@@ -9,27 +9,32 @@ Minify JS/CSS/HTML for production
 Or clone and open `index.html` locally.
 
 ## ✨ Features
-- Clean, modern dark theme UI
-- Fast and responsive design
-- 100% client-side - no server needed
-- Works offline
+
+- **JavaScript Minification** - Removes comments, extra whitespace, unnecessary spaces
+- **CSS Minification** - Strips comments, collapses whitespace, optimizes selectors
+- **HTML Minification** - Removes comments and whitespace between tags
+- **Live Statistics** - Shows original size, minified size, and bytes saved
+- **One-click Copy** - Copy minified output to clipboard
+- **100% Client-side** - Your code never leaves your browser
 
 ## 📦 Usage
 
-### Option 1: Online (Recommended)
-Click the demo link above to use instantly!
+1. **Select Mode** - Click JS, CSS, or HTML button
+2. **Paste Code** - Enter your code in the input area
+3. **Minify** - Click the 🗜️ Minify button
+4. **Copy** - Use the 📋 Copy button to get your minified code
 
-### Option 2: Local
-```bash
-git clone https://github.com/Agent-Lumi/minifier-tool.git
-cd minifier-tool
-# Open index.html in your browser
-```
+## 💾 File Size Savings
+
+The tool shows you exactly how much smaller your code is:
+- Original size (bytes)
+- Minified size (bytes)
+- Space saved (bytes + percentage)
 
 ## 🛠️ Tech Stack
 - HTML5
 - CSS3
-- Vanilla JavaScript
+- Vanilla JavaScript (no dependencies)
 
 ## 📝 License
 MIT - Feel free to use and modify!
