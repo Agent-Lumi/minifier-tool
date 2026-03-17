@@ -2,6 +2,8 @@
 // Made with 💡 by Agent-Lumi
 
 let currentMode = 'js';
+let currentFileName = '';
+let originalFileContent = '';
 
 function setMode(mode) {
     currentMode = mode;
@@ -102,10 +104,48 @@ function copyOutput() {
     setTimeout(() => btn.textContent = original, 2000);
 }
 
+function downloadMinified() {
+    const output = document.getElementById('output');
+    if (!output.value) {
+        alert('Nothing to download! Please minify some code first.');
+        return;
+    }
+    
+    const blob = new Blob([output.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    
+    // Generate filename
+    let downloadName = currentFileName || `minified.${currentMode}`;
+    if (downloadName.includes('.')) {
+        const parts = downloadName.split('.');
+        parts[parts.length - 2] += '.min';
+        downloadName = parts.join('.');
+    } else {
+        downloadName = `minified.${currentMode}`;
+    }
+    
+    a.href = url;
+    a.download = downloadName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    // Show feedback
+    const btn = document.querySelector('button[onclick="downloadMinified()"]');
+    const original = btn.textContent;
+    btn.textContent = '✅ Downloaded!';
+    setTimeout(() => btn.textContent = original, 2000);
+}
+
 function clearAll() {
     document.getElementById('input').value = '';
     document.getElementById('output').value = '';
     document.getElementById('stats').innerHTML = '';
+    currentFileName = '';
+    originalFileContent = '';
+    resetUploadZone();
 }
 
 function updateStats(original, minified) {
@@ -125,9 +165,133 @@ function updateStats(original, minified) {
     `;
 }
 
+// File Upload Functions
+function detectFileType(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const typeMap = {
+        'js': 'js',
+        'css': 'css',
+        'html': 'html',
+        'htm': 'html'
+    };
+    return typeMap[ext] || null;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function updateUploadZone(filename, size) {
+    const dropZone = document.getElementById('dropZone');
+    dropZone.classList.add('has-file');
+    dropZone.innerHTML = `
+        <div class="file-info">
+            <span>✅</span>
+            <span class="file-name">${filename}</span>
+            <span class="file-size">(${formatFileSize(size)})</span>
+        </div>
+    `;
+}
+
+function resetUploadZone() {
+    const dropZone = document.getElementById('dropZone');
+    dropZone.classList.remove('has-file');
+    dropZone.innerHTML = `
+        <div class="upload-content">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">Drag & drop your file here</p>
+            <p class="upload-hint">or click to browse</p>
+            <p class="upload-types">Supports: .js, .css, .html</p>
+        </div>
+        <input type="file" id="fileInput" accept=".js,.css,.html" hidden>
+    `;
+    setupFileInput();
+}
+
+function handleFile(file) {
+    if (!file) return;
+    
+    const fileType = detectFileType(file.name);
+    
+    if (!fileType) {
+        alert('Unsupported file type. Please upload .js, .css, or .html files.');
+        return;
+    }
+    
+    currentFileName = file.name;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        originalFileContent = e.target.result;
+        document.getElementById('input').value = originalFileContent;
+        
+        // Auto-set mode based on file type
+        setMode(fileType);
+        
+        // Update upload zone
+        updateUploadZone(file.name, file.size);
+        
+        // Auto-minify
+        minify();
+    };
+    reader.readAsText(file);
+}
+
+function setupFileInput() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    
+    // Click to browse
+    dropZone.addEventListener('click', (e) => {
+        if (!dropZone.classList.contains('has-file')) {
+            fileInput.click();
+        }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        handleFile(file);
+    });
+    
+    // Drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('dragover');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('dragover');
+        }, false);
+    });
+    
+    // Handle drop
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFile(files[0]);
+    }, false);
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     setMode('js');
+    setupFileInput();
 });
 
 console.log('%c🗜️ Minifier Tool', 'font-size: 20px; color: #6f42c1;');

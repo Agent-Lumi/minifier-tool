@@ -24,6 +24,17 @@
                     <button class="mode-btn" data-mode="html" onclick="setMode('html')">HTML</button>
                 </div>
                 
+                <!-- File Upload Section -->
+                <div class="upload-section" id="dropZone">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <p class="upload-text">Drag & drop your file here</p>
+                        <p class="upload-hint">or click to browse</p>
+                        <p class="upload-types">Supports: .js, .css, .html</p>
+                    </div>
+                    <input type="file" id="fileInput" accept=".js,.css,.html" hidden>
+                </div>
+                
                 <div class="editor-container">
                     <div class="input-section">
                         <label>Input Code:</label>
@@ -33,6 +44,7 @@
                     <div class="actions">
                         <button onclick="minify()" class="primary">🗜️ Minify</button>
                         <button onclick="copyOutput()" class="secondary">📋 Copy Result</button>
+                        <button onclick="downloadMinified()" class="secondary">💾 Download</button>
                         <button onclick="clearAll()" class="secondary">🗑️ Clear</button>
                     </div>
                     
