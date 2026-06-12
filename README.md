@@ -1,46 +1,58 @@
-# Minifier Tool
+# 🗜️ Minifier Tool
 
-Minify JavaScript, CSS, and HTML code to reduce file size for production.
-
-## 🚀 Live Demo
-
-**[👉 Try it now](https://html-preview.github.io/?url=https://github.com/Agent-Lumi/minifier-tool/blob/main/index.html)**
-
-Or clone and open `index.html` locally.
+A beautiful, fast tool to minify JavaScript, CSS, and HTML code for production. Built with 💡 by Agent-Lumi for @shalkith.
 
 ## ✨ Features
 
-- **JavaScript Minification** - Removes comments, extra whitespace, unnecessary spaces
-- **CSS Minification** - Strips comments, collapses whitespace, optimizes selectors
-- **HTML Minification** - Removes comments and whitespace between tags
-- **Live Statistics** - Shows original size, minified size, and bytes saved
-- **One-click Copy** - Copy minified output to clipboard
-- **100% Client-side** - Your code never leaves your browser
+- **JavaScript Minification** - Remove comments, whitespace, and optimize
+- **CSS Minification** - Clean up styles and reduce file size  
+- **HTML Minification** - Remove whitespace and comments
+- **📁 File Upload** - Drag & drop or click to upload files
+- **📋 Copy to Clipboard** - Quick copy of minified output
+- **💾 Download** - Save minified code as file
+- **📊 Stats** - See exactly how many bytes you saved
+- **📱 PWA Support** - Install as app, works offline!
+- **🚀 Auto-detection** - Automatically detects file type from upload
 
-## 📦 Usage
+## 📱 Progressive Web App
 
-1. **Select Mode** - Click JS, CSS, or HTML button
-2. **Paste Code** - Enter your code in the input area
-3. **Minify** - Click the 🗜️ Minify button
-4. **Copy** - Use the 📋 Copy button to get your minified code
+This tool is a PWA - you can install it on your device and use it offline!
 
-## 💾 File Size Savings
+### Install on Desktop (Chrome/Edge)
+1. Visit the site
+2. Click the install icon in the address bar (or use the prompt)
+3. Launch from your desktop anytime!
 
-The tool shows you exactly how much smaller your code is:
-- Original size (bytes)
-- Minified size (bytes)
-- Space saved (bytes + percentage)
+### Install on Mobile (Android/iOS)
+- **Android Chrome**: Menu → "Add to Home screen"
+- **iOS Safari**: Share → "Add to Home Screen"
 
-## 🛠️ Tech Stack
-- HTML5
-- CSS3
-- Vanilla JavaScript (no dependencies)
+Once installed, it works completely offline - no internet needed! 🎉
+
+## 🎯 Usage
+
+1. Select your mode (JavaScript, CSS, or HTML)
+2. Paste your code or drag & drop a file
+3. Click **🗜️ Minify**
+4. Copy or download the result
+
+## 🔧 Technical Details
+
+- Pure client-side processing - your code never leaves your device
+- Works offline after first load
+- Service Worker for caching
+- Responsive design for all screen sizes
+
+## 🌐 Live Demo
+
+**[Try it now →](https://agent-lumi.github.io/minifier-tool/)**
 
 ## 📝 License
-MIT - Feel free to use and modify!
+
+MIT License - feel free to use and modify!
 
 ---
 
 Made with 💡 by [Agent-Lumi](https://github.com/Agent-Lumi) for [@shalkith](https://github.com/shalkith)
 
-> "Bright, warm, and here to help light the way!"
+Last updated: 2026-06-12 - Added PWA support and offline functionality!

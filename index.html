@@ -5,11 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Minify JavaScript, CSS, and HTML code for production">
     <meta name="author" content="Agent-Lumi">
+    <meta name="theme-color" content="#6f42c1">
     <title>Minifier Tool | Made by Agent-Lumi</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗜️</text></svg>">
+    <!-- Apple PWA Support -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%236f42c1' rx='24'/%3E%3Ctext x='96' y='130' font-size='120' text-anchor='middle'%3E%F0%9F%97%9C%EF%B8%8F%3C/text%3E%3C/svg%3E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Minifier">
 </head>
 <body>
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="offline-indicator hidden">\n        📡 Offline Mode - Working from cache
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <div id="install-prompt" class="install-prompt hidden">
+        <div class="install-content">
+            <span class="install-text">📱 Install Minifier for offline use!</span>
+            <div class="install-actions">
+                <button onclick="installApp()" class="install-btn">Install</button>
+                <button onclick="dismissInstall()" class="dismiss-btn">×</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="logo"><span>🗜️</span></div>
@@ -59,57 +81,73 @@
         </main>
         <footer>
             <p>Made with 💡 by <a href="https://github.com/Agent-Lumi" target="_blank">Agent-Lumi</a> for <a href="https://github.com/shalkith" target="_blank">@shalkith</a></p>
-            <p><a href="https://github.com/Agent-Lumi/minifier-tool" target="_blank">View on GitHub →</a></p>
+            <p><a href="https://github.com/Agent-Lumi/minifier-tool" target="_blank">View on GitHub →</a> | <span id="offline-status">🟢 Online</span></p>
         </footer>
     </div>
+    
     <script src="app.js"></script>
+    
+    <script>
+        // Register Service Worker for PWA
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("sw.js")
+                    .then((reg) => console.log("✅ Service Worker registered", reg.scope))
+                    .catch((err) => console.log("❌ SW registration failed:", err));
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installPrompt = document.getElementById("install-prompt");
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Only show if not recently dismissed
+            const dismissed = localStorage.getItem("install-dismissed");
+            if (!dismissed || Date.now() - parseInt(dismissed) > 7 * 24 * 60 * 60 * 1000) {
+                installPrompt.classList.remove("hidden");
+            }
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === "accepted") {
+                        console.log("✅ User installed PWA");
+                    }
+                    deferredPrompt = null;
+                    installPrompt.classList.add("hidden");
+                });
+            }
+        }
+
+        function dismissInstall() {
+            installPrompt.classList.add("hidden");
+            localStorage.setItem("install-dismissed", Date.now());
+        }
+
+        // Online/Offline Detection
+        const offlineIndicator = document.getElementById("offline-indicator");
+        const offlineStatus = document.getElementById("offline-status");
+
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineIndicator.classList.add("hidden");
+                offlineStatus.textContent = "🟢 Online";
+                offlineStatus.style.color = "#22c55e";
+            } else {
+                offlineIndicator.classList.remove("hidden");
+                offlineStatus.textContent = "📡 Offline";
+                offlineStatus.style.color = "#f59e0b";
+            }
+        }
+
+        window.addEventListener("online", updateOnlineStatus);
+        window.addEventListener("offline", updateOnlineStatus);
+        updateOnlineStatus();
+    </script>
 </body>
 </html>
-<script>
-// Simple tutorial
-const tutorialSteps = [
-    { selector: 'h1', text: 'Welcome! This is the main title.' },
-    { selector: 'button', text: 'Click here to perform actions.' }
-];
-let currentStep = 0;
-function showTutorial() {
-    if (currentStep < tutorialSteps.length) {
-        const step = tutorialSteps[currentStep];
-        const el = document.querySelector(step.selector);
-        if (el) {
-            const tooltip = document.createElement('div');
-            tooltip.textContent = step.text;
-            tooltip.style.cssText = 'position:absolute;background:#6f42c1;color:white;padding:10px;border-radius:5px;z-index:1000;';
-            el.style.position = 'relative';
-            el.appendChild(tooltip);
-            setTimeout(() => tooltip.remove(), 3000);
-        }
-        currentStep++;
-    }
-}
-// Show tutorial on first visit
-if (!localStorage.getItem('tutorial-shown')) {
-    setTimeout(showTutorial, 1000);
-    localStorage.setItem('tutorial-shown', 'true');
-}
-</script>
-<script>
-// Import from file
-const importBtn = document.createElement('button');
-importBtn.textContent = '📁 Import';
-importBtn.onclick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const textArea = document.querySelector('textarea');
-            if (textArea) textArea.value = e.target.result;
-        };
-        reader.readAsText(file);
-    };
-    input.click();
-};
-document.querySelector('.container')?.appendChild(importBtn);
-</script>

@@ -1,9 +1,14 @@
 // Minifier Tool - Minify JS/CSS/HTML
 // Made with 💡 by Agent-Lumi
+// Now with PWA support for offline usage!
 
 let currentMode = 'js';
 let currentFileName = '';
 let originalFileContent = '';
+
+// Check if app is running as installed PWA
+const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+              window.navigator.standalone === true;
 
 function setMode(mode) {
     currentMode = mode;
@@ -16,9 +21,12 @@ function setMode(mode) {
     const placeholders = {
         js: "// Paste your JavaScript here...\nfunction hello() {\n  console.log('Hello World');\n}",
         css: "/* Paste your CSS here... */\n.container {\n  display: flex;\n  padding: 20px;\n}",
-        html: "<!-- Paste your HTML here... -->\n<div class=\"container\">\n  <h1>Hello</h1>\n</div>"
+        html: "<!-- Paste your HTML here... --\u003e\n<div class=\"container\"\u003e\n  <h1>Hello</h1>\n</div\u003e"
     };
     input.placeholder = placeholders[mode];
+    
+    // Save preference
+    localStorage.setItem('minifier-mode', mode);
 }
 
 function minify() {
@@ -46,6 +54,9 @@ function minify() {
         }
         output.value = result;
         updateStats(input.length, result.length);
+        
+        // Save to history
+        saveToHistory(input, result, currentMode);
     } catch (e) {
         output.value = 'Error: ' + e.message;
         updateStats(input.length, 0);
@@ -54,13 +65,16 @@ function minify() {
 
 function minifyJS(code) {
     return code
-        // Remove comments
-        .replace(/\/\/.*$/gm, '')
+        // Remove single-line comments (but not in strings)
+        .replace(/([^:]\/\/.*$)/gm, '')
+        // Remove multi-line comments
         .replace(/\/\*[\s\S]*?\*\//g, '')
         // Remove extra whitespace
         .replace(/\s+/g, ' ')
-        // Remove spaces around operators
-        .replace(/\s*([{}();,:+\-*\/=<>!&|])\s*/g, '$1')
+        // Remove spaces around operators (careful with regex)
+        .replace(/\s*([{}();,:+\-*\/=~<>!&|])\s*/g, '$1')
+        // Remove trailing semicolons before closing braces
+        .replace(/;}/g, '}')
         .trim();
 }
 
@@ -70,10 +84,13 @@ function minifyCSS(code) {
         .replace(/\/\*[\s\S]*?\*\//g, '')
         // Remove extra whitespace
         .replace(/\s+/g, ' ')
-        // Remove spaces around selectors
-        .replace(/\s*([{}:;,>+~])\s*/g, '$1')
-        // Remove trailing semicolons
+        // Remove spaces around selectors and properties
+        .replace(/\s*([{}:;,])>*+~])\s*/g, '$1')
+        // Remove trailing semicolons in blocks
         .replace(/;}/g, '}')
+        // Remove unnecessary spaces
+        .replace(/\s*{\s*/g, '{')
+        .replace(/\s*}\s*/g, '}')
         .trim();
 }
 
@@ -87,6 +104,7 @@ function minifyHTML(code) {
         .replace(/\s+/g, ' ')
         // Remove spaces before/after =
         .replace(/\s*=\s*/g, '=')
+        // Remove leading/trailing whitespace
         .trim();
 }
 
@@ -94,20 +112,34 @@ function copyOutput() {
     const output = document.getElementById('output');
     if (!output.value) return;
     
-    output.select();
-    document.execCommand('copy');
+    // Use modern clipboard API with fallback
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(output.value).then(() => {
+            showFeedback('copyOutput()', '✅ Copied!');
+        }).catch(() => fallbackCopy());
+    } else {
+        fallbackCopy();
+    }
     
-    // Show feedback
-    const btn = document.querySelector('button[onclick="copyOutput()"]');
+    function fallbackCopy() {
+        output.select();
+        document.execCommand('copy');
+        showFeedback('copyOutput()', '✅ Copied!');
+    }
+}
+
+function showFeedback(fnName, text) {
+    const btn = document.querySelector(`button[onclick="${fnName}"]`);
+    if (!btn) return;
     const original = btn.textContent;
-    btn.textContent = '✅ Copied!';
+    btn.textContent = text;
     setTimeout(() => btn.textContent = original, 2000);
 }
 
 function downloadMinified() {
     const output = document.getElementById('output');
     if (!output.value) {
-        alert('Nothing to download! Please minify some code first.');
+        showToast('Nothing to download! Minify some code first.', 'warning');
         return;
     }
     
@@ -132,11 +164,7 @@ function downloadMinified() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    // Show feedback
-    const btn = document.querySelector('button[onclick="downloadMinified()"]');
-    const original = btn.textContent;
-    btn.textContent = '✅ Downloaded!';
-    setTimeout(() => btn.textContent = original, 2000);
+    showFeedback('downloadMinified()', '✅ Downloaded!');
 }
 
 function clearAll() {
@@ -146,6 +174,7 @@ function clearAll() {
     currentFileName = '';
     originalFileContent = '';
     resetUploadZone();
+    showToast('Cleared!', 'success');
 }
 
 function updateStats(original, minified) {
@@ -154,15 +183,62 @@ function updateStats(original, minified) {
     
     document.getElementById('stats').innerHTML = `
         <div class="stat">
-            <span>📊 Original:</span> ${original.toLocaleString()} bytes
+            <span>📊 Original:</span>
+            ${original.toLocaleString()} bytes
         </div>
         <div class="stat">
-            <span>🗜️ Minified:</span> ${minified.toLocaleString()} bytes
+            <span>🗜️ Minified:</span>
+            ${minified.toLocaleString()} bytes
         </div>
         <div class="stat saved">
-            <span>💾 Saved:</span> ${saved.toLocaleString()} bytes (${percent}%)
+            <span>💾 Saved:</span>
+            ${saved.toLocaleString()} bytes (${percent}%)
         </div>
     `;
+}
+
+// Toast notification
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'success' ? '#22c55e' : type === 'warning' ? '#f59e0b' : '#6f42c1'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        z-index: 1001;
+        animation: slideUp 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// History management
+function saveToHistory(input, output, mode) {
+    try {
+        let history = JSON.parse(localStorage.getItem('minifier-history') || '[]');
+        const entry = {
+            timestamp: Date.now(),
+            mode: mode,
+            inputLength: input.length,
+            outputLength: output.length,
+            saved: input.length - output.length
+        };
+        history.unshift(entry);
+        history = history.slice(0, 50); // Keep last 50
+        localStorage.setItem('minifier-history', JSON.stringify(history));
+    } catch (e) {
+        console.log('History save failed:', e);
+    }
 }
 
 // File Upload Functions
@@ -218,7 +294,7 @@ function handleFile(file) {
     const fileType = detectFileType(file.name);
     
     if (!fileType) {
-        alert('Unsupported file type. Please upload .js, .css, or .html files.');
+        showToast('Unsupported file type. Use .js, .css, or .html', 'warning');
         return;
     }
     
@@ -237,6 +313,10 @@ function handleFile(file) {
         
         // Auto-minify
         minify();
+        showToast(`Loaded ${file.name}`, 'success');
+    };
+    reader.onerror = function() {
+        showToast('Error reading file', 'warning');
     };
     reader.readAsText(file);
 }
@@ -244,6 +324,8 @@ function handleFile(file) {
 function setupFileInput() {
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
+    
+    if (!dropZone || !fileInput) return;
     
     // Click to browse
     dropZone.addEventListener('click', (e) => {
@@ -290,9 +372,19 @@ function setupFileInput() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    setMode('js');
+    // Restore saved mode preference
+    const savedMode = localStorage.getItem('minifier-mode') || 'js';
+    setMode(savedMode);
+    
+    // Setup file input
     setupFileInput();
+    
+    // Log PWA status
+    if (isPWA) {
+        console.log('✅ Running as installed PWA');
+    }
 });
 
 console.log('%c🗜️ Minifier Tool', 'font-size: 20px; color: #6f42c1;');
 console.log('%cMade by Agent-Lumi for @shalkith', 'font-size: 12px; color: #8b5cf6;');
+console.log('%cNow with PWA support for offline usage! 📱', 'font-size: 12px; color: #22c55e;');

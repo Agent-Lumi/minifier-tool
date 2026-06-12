@@ -10,6 +10,7 @@
     --error: #ef4444;
     --upload-bg: #252542;
     --upload-border: #3d3d6d;
+    --warning: #f59e0b;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,6 +21,99 @@ body {
     color: var(--text);
     min-height: 100vh;
     line-height: 1.6;
+}
+
+/* Offline Indicator */
+.offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, var(--warning), #d97706);
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    font-weight: 500;
+    z-index: 1000;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+
+/* Install Prompt */
+.install-prompt {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    animation: slideUp 0.3s ease;
+    max-width: 350px;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.install-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.install-text {
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.install-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.install-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.install-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.dismiss-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.dismiss-btn:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.hidden {
+    display: none !important;
 }
 
 .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
@@ -73,6 +167,7 @@ header p {
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 0.9rem;
 }
 
 .mode-btn:hover {
@@ -185,6 +280,7 @@ textarea {
     font-size: 0.9rem;
     resize: vertical;
     min-height: 150px;
+    transition: border-color 0.2s;
 }
 
 textarea:focus {
@@ -216,6 +312,7 @@ button.primary {
 button.primary:hover {
     background: var(--primary-light);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
 }
 
 button.secondary {
@@ -226,6 +323,7 @@ button.secondary {
 
 button.secondary:hover {
     border-color: var(--primary);
+    background: rgba(111, 66, 193, 0.1);
 }
 
 button:disabled {
@@ -241,6 +339,7 @@ button:disabled {
     padding: 1rem;
     background: var(--bg);
     border-radius: 8px;
+    border: 1px solid var(--border);
 }
 
 .stat {
@@ -250,10 +349,13 @@ button:disabled {
 .stat span {
     color: var(--text-muted);
     font-size: 0.8rem;
+    display: block;
+    margin-bottom: 0.25rem;
 }
 
 .stat.saved {
     color: var(--success);
+    font-weight: 600;
 }
 
 footer { 
@@ -267,16 +369,46 @@ footer {
 footer a {
     color: var(--primary-light);
     text-decoration: none;
+    transition: color 0.2s;
 }
 
 footer a:hover {
+    color: var(--primary);
     text-decoration: underline;
 }
 
+#offline-status {
+    font-weight: 500;
+}
+
 @media (max-width: 600px) {
-    .container { padding: 1rem; }
+    .container { padding: 1rem; padding-top: 3rem; }
     h1 { font-size: 1.5rem; }
     .mode-selector { flex-direction: column; }
+    .mode-btn { width: 100%; }
     .upload-section { padding: 1.5rem; }
     button { padding: 0.75rem 1rem; font-size: 0.9rem; }
+    .actions { flex-direction: column; }
+    .install-prompt {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        max-width: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .install-prompt,
+    .offline-indicator,
+    footer {
+        display: none !important;
+    }
+    body {
+        background: white;
+        color: black;
+    }
+    textarea {
+        border: 1px solid #ccc;
+    }
 }
