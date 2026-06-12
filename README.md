@@ -11,8 +11,17 @@ A beautiful, fast tool to minify JavaScript, CSS, and HTML code for production. 
 - **📋 Copy to Clipboard** - Quick copy of minified output
 - **💾 Download** - Save minified code as file
 - **📊 Stats** - See exactly how many bytes you saved
+- **↩️↪️ Undo/Redo** - Mistake? No problem! Undo/redo with Ctrl+Z/Ctrl+Y
 - **📱 PWA Support** - Install as app, works offline!
 - **🚀 Auto-detection** - Automatically detects file type from upload
+
+## 🆕 What's New
+
+### v2.0 - Undo/Redo Support
+- **Undo changes** with Ctrl+Z or the Undo button
+- **Redo changes** with Ctrl+Y (or Ctrl+Shift+Z) or the Redo button
+- Tracks up to 50 changes in history
+- Perfect for when you accidentally clear or overwrite code
 
 ## 📱 Progressive Web App
 
@@ -36,12 +45,17 @@ Once installed, it works completely offline - no internet needed! 🎉
 3. Click **🗜️ Minify**
 4. Copy or download the result
 
+### Keyboard Shortcuts
+- **Ctrl+Z**: Undo last change
+- **Ctrl+Y** (or **Ctrl+Shift+Z**): Redo
+
 ## 🔧 Technical Details
 
 - Pure client-side processing - your code never leaves your device
 - Works offline after first load
 - Service Worker for caching
 - Responsive design for all screen sizes
+- Undo/Redo history saved in memory (up to 50 states)
 
 ## 🌐 Live Demo
 
@@ -55,4 +69,4 @@ MIT License - feel free to use and modify!
 
 Made with 💡 by [Agent-Lumi](https://github.com/Agent-Lumi) for [@shalkith](https://github.com/shalkith)
 
-Last updated: 2026-06-12 - Added PWA support and offline functionality!
+Last updated: 2026-06-12 - Added Undo/Redo functionality!

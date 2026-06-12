@@ -64,10 +64,16 @@
                     </div>
                     
                     <div class="actions">
-                        <button onclick="minify()" class="primary">🗜️ Minify</button>
-                        <button onclick="copyOutput()" class="secondary">📋 Copy Result</button>
-                        <button onclick="downloadMinified()" class="secondary">💾 Download</button>
-                        <button onclick="clearAll()" class="secondary">🗑️ Clear</button>
+                        <div class="action-row">
+                            <button onclick="undo()" id="undo-btn" class="secondary" title="Undo (Ctrl+Z)">↩️ Undo</button>
+                            <button onclick="redo()" id="redo-btn" class="secondary" title="Redo (Ctrl+Y)">↪️ Redo</button>
+                        </div>
+                        <div class="action-row">
+                            <button onclick="minify()" class="primary">🗜️ Minify</button>
+                            <button onclick="copyOutput()" class="secondary">📋 Copy Result</button>
+                            <button onclick="downloadMinified()" class="secondary">💾 Download</button>
+                            <button onclick="clearAll()" class="secondary">🗑️ Clear</button>
+                        </div>
                     </div>
                     
                     <div class="output-section">

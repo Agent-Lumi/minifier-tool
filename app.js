@@ -1,14 +1,100 @@
 // Minifier Tool - Minify JS/CSS/HTML
 // Made with 💡 by Agent-Lumi
-// Now with PWA support for offline usage!
+// Now with PWA support and Undo/Redo functionality!
 
 let currentMode = 'js';
 let currentFileName = '';
 let originalFileContent = '';
 
+// Undo/Redo State Management
+const undoStack = [];
+const redoStack = [];
+const MAX_HISTORY = 50;
+
 // Check if app is running as installed PWA
 const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
               window.navigator.standalone === true;
+
+// ============================================
+// UNDO/REDO FUNCTIONALITY
+// ============================================
+
+function saveUndoState() {
+    const input = document.getElementById('input');
+    if (!input) return;
+    
+    const currentValue = input.value;
+    
+    // Don't save if same as last state
+    if (undoStack.length > 0 && undoStack[undoStack.length - 1] === currentValue) {
+        return;
+    }
+    
+    undoStack.push(currentValue);
+    
+    // Limit history size
+    if (undoStack.length > MAX_HISTORY) {
+        undoStack.shift();
+    }
+    
+    // Clear redo stack on new change
+    redoStack.length = 0;
+    
+    updateUndoRedoButtons();
+}
+
+function undo() {
+    const input = document.getElementById('input');
+    if (!input || undoStack.length === 0) return;
+    
+    // Save current state to redo stack
+    redoStack.push(input.value);
+    
+    // Restore previous state
+    const previousState = undoStack.pop();
+    input.value = previousState;
+    
+    // Trigger minify to update output
+    minify();
+    updateUndoRedoButtons();
+    
+    showToast('↩️ Undone', 'info');
+}
+
+function redo() {
+    const input = document.getElementById('input');
+    if (!input || redoStack.length === 0) return;
+    
+    // Save current state to undo stack
+    undoStack.push(input.value);
+    
+    // Restore next state
+    const nextState = redoStack.pop();
+    input.value = nextState;
+    
+    // Trigger minify to update output
+    minify();
+    updateUndoRedoButtons();
+    
+    showToast('↪️ Redone', 'info');
+}
+
+function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    
+    if (undoBtn) {
+        undoBtn.disabled = undoStack.length === 0;
+        undoBtn.style.opacity = undoStack.length === 0 ? '0.5' : '1';
+    }
+    
+    if (redoBtn) {
+        redoBtn.disabled = redoStack.length === 0;
+        redoBtn.style.opacity = redoStack.length === 0 ? '0.5' : '1';
+    }
+}
+
+// ============================================
 
 function setMode(mode) {
     currentMode = mode;
@@ -379,12 +465,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup file input
     setupFileInput();
     
+    // Setup undo/redo keyboard shortcuts
+    setupUndoRedoShortcuts();
+    
+    // Initialize undo/redo buttons state
+    updateUndoRedoButtons();
+    
     // Log PWA status
     if (isPWA) {
         console.log('✅ Running as installed PWA');
     }
 });
 
+// Setup keyboard shortcuts for undo/redo
+function setupUndoRedoShortcuts() {
+    const input = document.getElementById('input');
+    if (!input) return;
+    
+    // Track input changes for undo history
+    let debounceTimer;
+    input.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            saveUndoState();
+        }, 500); // Save state 500ms after typing stops
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        // Check if user is in input field
+        const isInputFocused = document.activeElement === input;
+        
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') {
+            e.preventDefault();
+            if (isInputFocused) {
+                input.blur(); // Temporarily blur to avoid cursor issues
+            }
+            undo();
+        } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') {
+            e.preventDefault();
+            if (isInputFocused) {
+                input.blur();
+            }
+            redo();
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+            e.preventDefault();
+            if (isInputFocused) {
+                input.blur();
+            }
+            redo();
+        }
+    });
+}
+
 console.log('%c🗜️ Minifier Tool', 'font-size: 20px; color: #6f42c1;');
 console.log('%cMade by Agent-Lumi for @shalkith', 'font-size: 12px; color: #8b5cf6;');
-console.log('%cNow with PWA support for offline usage! 📱', 'font-size: 12px; color: #22c55e;');
+console.log('%cNow with PWA support, offline usage, and Undo/Redo! 🎉', 'font-size: 12px; color: #22c55e;');
