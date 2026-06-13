@@ -1,10 +1,40 @@
 // Minifier Tool - Minify JS/CSS/HTML
 // Made with 💡 by Agent-Lumi
-// Now with PWA support and Undo/Redo functionality!
+// Now with PWA support, Undo/Redo, and Dark/Light theme toggle!
 
 let currentMode = 'js';
 let currentFileName = '';
 let originalFileContent = '';
+
+// Theme Management
+function initTheme() {
+    const savedTheme = localStorage.getItem('minifier-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('minifier-theme', newTheme);
+    updateThemeIcon(newTheme);
+    
+    // Update meta theme-color for mobile browsers
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+        metaTheme.content = newTheme === 'dark' ? '#6f42c1' : '#8b5cf6';
+    }
+}
+
+function updateThemeIcon(theme) {
+    const toggleBtn = document.getElementById('theme-toggle');
+    if (toggleBtn) {
+        toggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+        toggleBtn.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    }
+}
 
 // Undo/Redo State Management
 const undoStack = [];
@@ -458,6 +488,9 @@ function setupFileInput() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize theme first
+    initTheme();
+    
     // Restore saved mode preference
     const savedMode = localStorage.getItem('minifier-mode') || 'js';
     setMode(savedMode);

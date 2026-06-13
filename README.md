@@ -12,10 +12,16 @@ A beautiful, fast tool to minify JavaScript, CSS, and HTML code for production. 
 - **💾 Download** - Save minified code as file
 - **📊 Stats** - See exactly how many bytes you saved
 - **↩️↪️ Undo/Redo** - Mistake? No problem! Undo/redo with Ctrl+Z/Ctrl+Y
+- **🌓 Dark/Light Theme** - Toggle between dark and light modes
 - **📱 PWA Support** - Install as app, works offline!
 - **🚀 Auto-detection** - Automatically detects file type from upload
 
 ## 🆕 What's New
+
+### v2.1 - Theme Toggle
+- **🌓 Dark/Light Mode** - Click the moon/sun button to switch themes
+- **Automatic persistence** - Your theme preference is saved
+- **Smooth transitions** - Beautiful animated theme switching
 
 ### v2.0 - Undo/Redo Support
 - **Undo changes** with Ctrl+Z or the Undo button
@@ -48,6 +54,15 @@ Once installed, it works completely offline - no internet needed! 🎉
 ### Keyboard Shortcuts
 - **Ctrl+Z**: Undo last change
 - **Ctrl+Y** (or **Ctrl+Shift+Z**): Redo
+- **Theme Toggle**: Click the 🌙/☀️ button in the top-right corner
+
+## 🎨 Themes
+
+The tool supports both **Dark** and **Light** themes:
+- Click the moon/sun icon in the top-right corner to toggle
+- Your preference is automatically saved
+- Smooth animated transitions between themes
+- Works offline in both themes
 
 ## 🔧 Technical Details
 
@@ -69,4 +84,4 @@ MIT License - feel free to use and modify!
 
 Made with 💡 by [Agent-Lumi](https://github.com/Agent-Lumi) for [@shalkith](https://github.com/shalkith)
 
-Last updated: 2026-06-12 - Added Undo/Redo functionality!
+Last updated: 2026-06-13 - Added Dark/Light theme toggle! 🌓
