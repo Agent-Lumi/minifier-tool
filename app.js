@@ -1,6 +1,6 @@
 // Minifier Tool - Minify JS/CSS/HTML
 // Made with 💡 by Agent-Lumi
-// Now with PWA support, Undo/Redo, and Dark/Light theme toggle!
+// Now with PWA support, Undo/Redo, Theme Toggle, and Side-by-Side Diff View!
 
 let currentMode = 'js';
 let currentFileName = '';
@@ -125,6 +125,155 @@ function updateUndoRedoButtons() {
 }
 
 // ============================================
+// DIFF VIEW FUNCTIONALITY
+// ============================================
+
+function toggleDiffView() {
+    const diffView = document.getElementById('diff-view');
+    const outputSection = document.getElementById('output-section');
+    const diffBtn = document.getElementById('diff-btn');
+    
+    if (diffView.classList.contains('hidden')) {
+        // Show diff view
+        const input = document.getElementById('input').value;
+        const output = document.getElementById('output').value;
+        
+        if (!input.trim() || !output.trim()) {
+            showToast('Minify some code first!', 'warning');
+            return;
+        }
+        
+        generateDiffView(input, output);
+        diffView.classList.remove('hidden');
+        outputSection.classList.add('hidden');
+        diffBtn.textContent = '📝 Show Output';
+        diffBtn.classList.add('active');
+    } else {
+        // Show normal output
+        diffView.classList.add('hidden');
+        outputSection.classList.remove('hidden');
+        diffBtn.textContent = '🔍 Show Diff';
+        diffBtn.classList.remove('active');
+    }
+}
+
+function generateDiffView(original, minified) {
+    const diffContent = document.getElementById('diff-content');
+    
+    // Split into lines for comparison
+    const originalLines = original.split('\n');
+    const minifiedText = minified;
+    
+    let html = '';
+    
+    // Header stats for diff
+    const originalChars = original.length;
+    const minifiedChars = minified.length;
+    const saved = originalChars - minifiedChars;
+    const savingsPercent = ((saved / originalChars) * 100).toFixed(1);
+    
+    html += `<div class="diff-header">
+        <div class="diff-stat">
+            <span class="diff-stat-label">Original:</span>
+            <span class="diff-stat-value">${originalChars.toLocaleString()} chars</span>
+        </div>
+        <div class="diff-stat">
+            <span class="diff-stat-label">Minified:</span>
+            <span class="diff-stat-value">${minifiedChars.toLocaleString()} chars</span>
+        </div>
+        <div class="diff-stat saved">
+            <span class="diff-stat-label">Saved:</span>
+            <span class="diff-stat-value">${saved.toLocaleString()} chars (${savingsPercent}%)</span>
+        </div>
+    </div>`;
+    
+    html += '<div class="diff-container">';
+    html += '<div class="diff-side">';
+    html += '<div class="diff-side-header">Original</div>';
+    
+    // Show original with removed parts highlighted
+    originalLines.forEach((line, index) => {
+        const lineClass = getLineChangeClass(line, minified);
+        html += `<div class="diff-line ${lineClass}" data-line="${index + 1}">
+            <span class="diff-line-num">${index + 1}</span>
+            <span class="diff-line-content">${escapeHtml(line)}</span>
+        </div>`;
+    });
+    
+    html += '</div>';
+    html += '<div class="diff-side">';
+    html += '<div class="diff-side-header">Minified</div>';
+    
+    // Show minified (wrapped)
+    const wrappedMinified = wrapMinifiedText(minifiedText, 60);
+    wrappedMinified.forEach((chunk, index) => {
+        html += `<div class="diff-line added">
+            <span class="diff-line-num">${index + 1}</span>
+            <span class="diff-line-content">${escapeHtml(chunk)}</span>
+        </div>`;
+    });
+    
+    html += '</div>';
+    html += '</div>';
+    
+    // Legend
+    html += `<div class="diff-legend">
+        <div class="diff-legend-item">
+            <span class="diff-legend-color removed"></span>
+            <span>Removed (whitespace, comments)</span>
+        </div>
+        <div class="diff-legend-item">
+            <span class="diff-legend-color unchanged"></span>
+            <span>Kept (code)</span>
+        </div>
+        <div class="diff-legend-item">
+            <span class="diff-legend-color added"></span>
+            <span>Minified result</span>
+        </div>
+    </div>`;
+    
+    diffContent.innerHTML = html;
+}
+
+function getLineChangeClass(line, minified) {
+    // Empty lines are removed
+    if (!line.trim()) return 'removed';
+    
+    // Check if this line's content exists in minified
+    const lineContent = line.trim();
+    
+    // Pure comment lines are removed
+    if (lineContent.startsWith('//') || lineContent.startsWith('/*') || lineContent.startsWith('*')) {
+        return 'removed';
+    }
+    
+    // Lines with only whitespace/indentation are removed
+    if (lineContent !== line) {
+        // Has leading whitespace that will be removed
+        if (!minified.includes(lineContent.replace(/\s+/g, ' ').trim())) {
+            return 'removed';
+        }
+        return 'modified'; // Content kept but whitespace removed
+    }
+    
+    return 'unchanged';
+}
+
+function wrapMinifiedText(text, maxLength) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += maxLength) {
+        chunks.push(text.substring(i, i + maxLength));
+    }
+    return chunks.length > 0 ? chunks : [text];
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============================================
 
 function setMode(mode) {
     currentMode = mode;
@@ -137,7 +286,7 @@ function setMode(mode) {
     const placeholders = {
         js: "// Paste your JavaScript here...\nfunction hello() {\n  console.log('Hello World');\n}",
         css: "/* Paste your CSS here... */\n.container {\n  display: flex;\n  padding: 20px;\n}",
-        html: "<!-- Paste your HTML here... --\u003e\n<div class=\"container\"\u003e\n  <h1>Hello</h1>\n</div\u003e"
+        html: "<!-- Paste your HTML here... -->\n<div class=\"container\">\n  <h1>Hello</h1>\n</div>"
     };
     input.placeholder = placeholders[mode];
     
@@ -173,6 +322,12 @@ function minify() {
         
         // Save to history
         saveToHistory(input, result, currentMode);
+        
+        // Hide diff view if it's open
+        const diffView = document.getElementById('diff-view');
+        if (!diffView.classList.contains('hidden')) {
+            toggleDiffView();
+        }
     } catch (e) {
         output.value = 'Error: ' + e.message;
         updateStats(input.length, 0);
@@ -201,7 +356,7 @@ function minifyCSS(code) {
         // Remove extra whitespace
         .replace(/\s+/g, ' ')
         // Remove spaces around selectors and properties
-        .replace(/\s*([{}:;,])>*+~])\s*/g, '$1')
+        .replace(/\s*([{}:;,])*+~])\s*/g, '$1')
         // Remove trailing semicolons in blocks
         .replace(/;}/g, '}')
         // Remove unnecessary spaces
@@ -287,6 +442,22 @@ function clearAll() {
     document.getElementById('input').value = '';
     document.getElementById('output').value = '';
     document.getElementById('stats').innerHTML = '';
+    
+    // Hide diff view
+    const diffView = document.getElementById('diff-view');
+    if (diffView) {
+        diffView.classList.add('hidden');
+    }
+    const outputSection = document.getElementById('output-section');
+    if (outputSection) {
+        outputSection.classList.remove('hidden');
+    }
+    const diffBtn = document.getElementById('diff-btn');
+    if (diffBtn) {
+        diffBtn.textContent = '🔍 Show Diff';
+        diffBtn.classList.remove('active');
+    }
+    
     currentFileName = '';
     originalFileContent = '';
     resetUploadZone();
@@ -553,4 +724,4 @@ function setupUndoRedoShortcuts() {
 
 console.log('%c🗜️ Minifier Tool', 'font-size: 20px; color: #6f42c1;');
 console.log('%cMade by Agent-Lumi for @shalkith', 'font-size: 12px; color: #8b5cf6;');
-console.log('%cNow with PWA support, offline usage, and Undo/Redo! 🎉', 'font-size: 12px; color: #22c55e;');
+console.log('%cNow with PWA support, Diff View, Undo/Redo, and Theme Toggle! 🎉', 'font-size: 12px; color: #22c55e;');

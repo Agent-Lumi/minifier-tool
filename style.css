@@ -11,6 +11,12 @@
     --upload-bg: #252542;
     --upload-border: #3d3d6d;
     --warning: #f59e0b;
+    --diff-removed: rgba(239, 68, 68, 0.2);
+    --diff-removed-border: rgba(239, 68, 68, 0.4);
+    --diff-added: rgba(34, 197, 94, 0.2);
+    --diff-added-border: rgba(34, 197, 94, 0.4);
+    --diff-modified: rgba(245, 158, 11, 0.2);
+    --diff-modified-border: rgba(245, 158, 11, 0.4);
 }
 
 /* Light Theme Variables */
@@ -22,6 +28,12 @@
     --border: #dee2e6;
     --upload-bg: #f8f9fa;
     --upload-border: #ced4da;
+    --diff-removed: rgba(239, 68, 68, 0.15);
+    --diff-removed-border: rgba(239, 68, 68, 0.3);
+    --diff-added: rgba(34, 197, 94, 0.15);
+    --diff-added-border: rgba(34, 197, 94, 0.3);
+    --diff-modified: rgba(245, 158, 11, 0.15);
+    --diff-modified-border: rgba(245, 158, 11, 0.3);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -161,7 +173,7 @@ body, .tool-box, header, textarea, button, .upload-section, .stats, .install-pro
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+.container { max-width: 900px; margin: 0 auto; padding: 2rem; }
 
 header { 
     text-align: center; 
@@ -378,6 +390,12 @@ textarea:focus {
     background: rgba(111, 66, 193, 0.1);
 }
 
+.actions button.secondary.active {
+    background: rgba(111, 66, 193, 0.2);
+    border-color: var(--primary);
+    color: var(--primary-light);
+}
+
 .actions button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -417,6 +435,187 @@ textarea:focus {
     font-weight: 600;
 }
 
+/* ============================================
+   DIFF VIEW STYLES
+   ============================================ */
+
+.diff-view {
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+}
+
+.diff-header {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+}
+
+.diff-stat {
+    text-align: center;
+    padding: 0.5rem;
+    background: var(--bg);
+    border-radius: 8px;
+}
+
+.diff-stat.saved {
+    background: var(--diff-added);
+    border: 1px solid var(--diff-added-border);
+}
+
+.diff-stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.diff-stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.diff-stat.saved .diff-stat-value {
+    color: var(--success);
+}
+
+.diff-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.diff-side {
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.diff-side:last-child {
+    border-right: none;
+}
+
+.diff-side-header {
+    padding: 0.75rem 1rem;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.diff-line {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.25rem 0;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.diff-line-num {
+    width: 40px;
+    text-align: right;
+    padding-right: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.diff-line-content {
+    flex: 1;
+    padding-right: 0.5rem;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+
+.diff-line.removed {
+    background: var(--diff-removed);
+    border-left: 3px solid var(--error);
+}
+
+.diff-line.added {
+    background: var(--diff-added);
+    border-left: 3px solid var(--success);
+}
+
+.diff-line.modified {
+    background: var(--diff-modified);
+    border-left: 3px solid var(--warning);
+}
+
+.diff-line.unchanged {
+    border-left: 3px solid transparent;
+}
+
+.diff-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+}
+
+.diff-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.diff-legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.diff-legend-color.removed {
+    background: var(--diff-removed);
+    border: 2px solid var(--diff-removed-border);
+}
+
+.diff-legend-color.added {
+    background: var(--diff-added);
+    border: 2px solid var(--diff-added-border);
+}
+
+.diff-legend-color.unchanged {
+    background: var(--bg);
+    border: 2px solid var(--border);
+}
+
+/* Scrollbar styles for diff */
+.diff-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.diff-container::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+.diff-container::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.diff-container::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
 footer { 
     text-align: center; 
     margin-top: 2rem; 
@@ -440,7 +639,7 @@ footer a:hover {
     font-weight: 500;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .container { padding: 1rem; padding-top: 3rem; }
     h1 { font-size: 1.5rem; }
     .mode-selector { flex-direction: column; }
@@ -454,13 +653,34 @@ footer a:hover {
         bottom: 10px;
         max-width: none;
     }
+    .diff-container {
+        grid-template-columns: 1fr;
+        max-height: 300px;
+    }
+    .diff-side {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+    .diff-side:last-child {
+        border-bottom: none;
+    }
+    .diff-header {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    .diff-legend {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: center;
+    }
 }
 
 /* Print styles */
 @media print {
     .install-prompt,
     .offline-indicator,
-    footer {
+    footer,
+    .theme-toggle {
         display: none !important;
     }
     body {
@@ -469,5 +689,8 @@ footer a:hover {
     }
     textarea {
         border: 1px solid #ccc;
+    }
+    .diff-container {
+        max-height: none;
     }
 }

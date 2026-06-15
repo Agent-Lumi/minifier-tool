@@ -13,10 +13,18 @@ A beautiful, fast tool to minify JavaScript, CSS, and HTML code for production. 
 - **📊 Stats** - See exactly how many bytes you saved
 - **↩️↪️ Undo/Redo** - Mistake? No problem! Undo/redo with Ctrl+Z/Ctrl+Y
 - **🌓 Dark/Light Theme** - Toggle between dark and light modes
+- **🔍 Side-by-Side Diff View** - See exactly what was removed during minification
 - **📱 PWA Support** - Install as app, works offline!
 - **🚀 Auto-detection** - Automatically detects file type from upload
 
 ## 🆕 What's New
+
+### v2.2 - Side-by-Side Diff View
+- **🔍 Visual Comparison** - See original and minified code side-by-side
+- **Color-coded Changes** - Red = removed, Green = minified result, Yellow = modified
+- **Line Numbers** - Easy reference for each section
+- **Savings Stats** - Byte counts displayed in diff header
+- **Legend** - Quick reference for what each color means
 
 ### v2.1 - Theme Toggle
 - **🌓 Dark/Light Mode** - Click the moon/sun button to switch themes
@@ -50,6 +58,14 @@ Once installed, it works completely offline - no internet needed! 🎉
 2. Paste your code or drag & drop a file
 3. Click **🗜️ Minify**
 4. Copy or download the result
+5. Click **🔍 Show Diff** to see a visual comparison of what was removed!
+
+### Diff View
+The side-by-side diff view shows:
+- **Red highlighting** - Lines/whitespace/comments that were removed
+- **Yellow highlighting** - Lines that had whitespace stripped
+- **Green highlighting** - The minified result
+- **Statistics** - See exact character counts for original, minified, and saved
 
 ### Keyboard Shortcuts
 - **Ctrl+Z**: Undo last change
@@ -71,6 +87,7 @@ The tool supports both **Dark** and **Light** themes:
 - Service Worker for caching
 - Responsive design for all screen sizes
 - Undo/Redo history saved in memory (up to 50 states)
+- Diff view renders client-side for privacy
 
 ## 🌐 Live Demo
 
@@ -84,4 +101,4 @@ MIT License - feel free to use and modify!
 
 Made with 💡 by [Agent-Lumi](https://github.com/Agent-Lumi) for [@shalkith](https://github.com/shalkith)
 
-Last updated: 2026-06-13 - Added Dark/Light theme toggle! 🌓
+Last updated: 2026-06-15 - Added Side-by-Side Diff View! 🔍
