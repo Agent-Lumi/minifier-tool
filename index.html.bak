@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Minify JavaScript, CSS, and HTML code for production">
+    <meta name="description" content="Minify JavaScript, CSS, and HTML code for production with Diff View">
     <meta name="author" content="Agent-Lumi">
     <meta name="theme-color" content="#6f42c1">
     <title>Minifier Tool | Made by Agent-Lumi</title>
@@ -23,7 +23,8 @@
     </button>
 
     <!-- Offline Indicator -->
-    <div id="offline-indicator" class="offline-indicator hidden">\n        📡 Offline Mode - Working from cache
+    <div id="offline-indicator" class="offline-indicator hidden">
+        📡 Offline Mode - Working from cache
     </div>
 
     <!-- PWA Install Prompt -->
@@ -77,13 +78,22 @@
                             <button onclick="minify()" class="primary">🗜️ Minify</button>
                             <button onclick="copyOutput()" class="secondary">📋 Copy Result</button>
                             <button onclick="downloadMinified()" class="secondary">💾 Download</button>
+                            <button onclick="toggleDiffView()" id="diff-btn" class="secondary">🔍 Show Diff</button>
                             <button onclick="clearAll()" class="secondary">🗑️ Clear</button>
                         </div>
                     </div>
                     
-                    <div class="output-section">
+                    <!-- Normal Output Section -->
+                    <div class="output-section" id="output-section">
                         <label>Minified Output:</label>
                         <textarea id="output" readonly placeholder="Minified code will appear here..." rows="10"></textarea>
+                    </div>
+                    
+                    <!-- Diff View Section (hidden by default) -->
+                    <div id="diff-view" class="diff-view hidden">
+                        <div id="diff-content">
+                            <!-- Diff content will be generated here -->
+                        </div>
                     </div>
                     
                     <div id="stats" class="stats"></div>
@@ -162,15 +172,3 @@
     </script>
 </body>
 </html>
-<script>
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
-            case 's': e.preventDefault(); console.log('Save shortcut'); break;
-            case 'r': e.preventDefault(); location.reload(); break;
-            case 'f': e.preventDefault(); document.querySelector('input')?.focus(); break;
-        }
-    }
-});
-</script>
